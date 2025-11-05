@@ -1,0 +1,31 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtualenv
+.venv/
+.venv_cam/
+venv/
+
+# IDE / tooling
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Modelbestanden (YOLO e.d. – groot, hoort niet in git)
+*.pt
+*.onnx
+
+# Snapshots / gegenereerde data
+snapshots/*
+!snapshots/.gitkeep
+
+# Eventuele lokale env-files
+.env
+.env.*
+yolov8n.pt
