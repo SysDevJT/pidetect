@@ -52,6 +52,72 @@ def process_frame(frame, detector, trackers):
     tracker_yolo, tracker_vision, tracker_actions = trackers
     result = detector.detect(frame)
 
+    if not result["objects"]:
+        return None
+
+    # YOLO labels bijhouden
+    tracker_yolo.update([o["label"] for o in result["objects"]])
+
+    # Snapshot
+    try:
+        snap_b64 = save_snapshot(frame)
+    except Exception as e:
+        logger.error(f"Snapshot error: {e}")
+        snap_b64 = None
+
+    vision = {}
+    if snap_b64:
+        vision = analyze_with_lmstudio(snap_b64) or {}
+        if vision.get("status") == "ok":
+            parsed = vision.get("parsed") or {}
+
+            if parsed:
+                objs = parsed.get("objects_present") or []
+                acts = parsed.get("actions_present") or []
+
+                if objs:
+                    tracker_vision.update(objs)
+                if acts:
+                    tracker_actions.update(acts)
+
+                # compacte tag-samenvatting
+                vision["tags_summary"] = f"objects={len(objs)} | actions={len(acts)}"
+
+                # mooie tekst-samenvatting: eerst summary_text, anders bestaande summary
+                st = parsed.get("summary_text") or vision.get("summary")
+                if st:
+                    vision["summary"] = st
+            else:
+                # JSON-pad niet gebruikt → fallback: prose analyseren
+                vsum = vision.get("summary") or ""
+                vis_objs = extract_vision_objects(vsum)
+                if vis_objs:
+                    tracker_vision.update(vis_objs)
+                vis_actions = extract_vision_actions(vsum)
+                if vis_actions:
+                    tracker_actions.update(vis_actions)
+
+    out = {
+        "source": Config.DETECTORNAME,
+        "timestamp": datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
+        "summary": result["summary"],   # YOLO-samenvatting
+        "objects": result["objects"],
+        "vision": vision,
+    }
+    send_to_webhook(out)
+    return out
+
+
+def obsolete_process_frame(frame, detector, trackers):
+    if frame is None:
+        return None
+
+    if not motion_changed(frame):
+        return None
+
+    tracker_yolo, tracker_vision, tracker_actions = trackers
+    result = detector.detect(frame)
+
     if result["objects"]:
         tracker_yolo.update([o["label"] for o in result["objects"]])
 
@@ -70,7 +136,10 @@ def process_frame(frame, detector, trackers):
                     acts = vision["parsed"].get("actions_present", [])
                     if objs: tracker_vision.update(objs)
                     if acts: tracker_actions.update(acts)
-                    vision["summary"] = f"objects={len(objs)} | actions={len(acts)}"
+                    vision["tags_summary"] = f"objects={len(objs)} | actions={len(acts)}"
+                    st = parsed.get("summary_text")
+                    if st:
+                      vision["summary"] = st
                 else:
                     vsum = vision.get("summary", "")
                     vis_objs = extract_vision_objects(vsum)
@@ -79,6 +148,7 @@ def process_frame(frame, detector, trackers):
                     if vis_actions: tracker_actions.update(vis_actions)
 
         out = {
+            "source": Config.DETECTORNAME,
             "timestamp": datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
             "summary": result["summary"],
             "objects": result["objects"],

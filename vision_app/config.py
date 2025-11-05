@@ -11,7 +11,7 @@ class Config:
     REOPEN_EVERY_S = int(os.getenv("REOPEN_EVERY_S", "60"))
     MAX_RECONNECT_ATTEMPTS = int(os.getenv("MAX_RECONNECT_ATTEMPTS", "3"))
     FFMPEG_TIMEOUT = int(os.getenv("FFMPEG_TIMEOUT", "5000000"))  # microseconds
-
+    DETECTORNAME= os.getenv("DETECTORNAME", "UnnamedDetector")
     # Primair bron kiezen: picam of rtsp
     USE_PICAM = os.getenv("USE_PICAM", "1").lower() in ("1", "true", "yes")
 

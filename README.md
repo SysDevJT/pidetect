@@ -14,8 +14,8 @@ This project is a computer vision application designed to detect humans and cats
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/vision-app.git
-    cd vision-app
+    git clone https://github.com/SysDevJT/pidetect
+    cd detect
     ```
 
 2.  **Install dependencies:**
@@ -27,6 +27,8 @@ This project is a computer vision application designed to detect humans and cats
     ```bash
     wget https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt
     ```
+
+It wil most likely download itself.
 
 ## Configuration
 

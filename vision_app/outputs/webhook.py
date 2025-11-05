@@ -16,7 +16,7 @@ async def send_to_webhook_async(payload):
         async with aiohttp.ClientSession() as session:
             async with session.post(Config.WEBHOOK, json=payload, timeout=15) as resp:
                 resp.raise_for_status()
-                logger.info("Webhook sent successfully")
+                logger.debug("Webhook sent successfully")
     except Exception as e:
         logger.error(f"Webhook error: {e}")
 
