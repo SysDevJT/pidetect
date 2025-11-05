@@ -137,7 +137,7 @@ def main_loop():
                                 dashboard.set_error("Memory reset")
 
                         if time.time() - open_timestamp > Config.REOPEN_EVERY_S:
-                            logger.info("Reopening stream for stability")
+                            logger.debug("Reopening stream for stability")
                             break
 
                         now = time.time()

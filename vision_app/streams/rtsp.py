@@ -29,7 +29,7 @@ class RTSPStream(VideoStream):
                 if not ok:
                     raise RuntimeError("No valid frames received from stream")
 
-                logger.info("RTSP stream opened successfully")
+                logger.debug("RTSP stream opened successfully")
                 return self
 
             except Exception as e:
@@ -60,4 +60,4 @@ class RTSPStream(VideoStream):
         if self.cap:
             self.cap.release()
             self.cap = None
-            logger.info("RTSP stream released")
+            logger.debug("RTSP stream released")
